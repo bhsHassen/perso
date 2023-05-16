@@ -1,5 +1,5 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.awt.Color;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -7,9 +7,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartFrame;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.PdfWriter;
 
 public class ArticleGraph {
     public static void main(String[] args) {
@@ -45,11 +51,27 @@ public class ArticleGraph {
             "Nombre d'articles en entrée et en sortie",
             "Date",
             "Nombre d'articles",
-            dataset
+            dataset,
+            PlotOrientation.VERTICAL,
+            true,
+            true,
+            false
         );
 
-        ChartFrame frame = new ChartFrame("Graphique", chart);
-        frame.pack();
-        frame.setVisible(true);
+        // Personnaliser les couleurs des séries
+        CategoryPlot plot = (CategoryPlot) chart.getPlot();
+        plot.getRenderer().setSeriesPaint(0, Color.BLUE);
+        plot.getRenderer().setSeriesPaint(1, Color.RED);
+
+        // Sauvegarder le graphique en PDF
+        try (FileOutputStream file = new FileOutputStream("chemin_vers_votre_fichier.pdf")) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, file);
+            document.open();
+            ChartUtilities.writeChartAsPDF(document, chart, 500, 400);
+            document.close();
+        } catch (IOException | DocumentException e) {
+            e.printStackTrace();
+        }
     }
 }
